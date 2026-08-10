@@ -1,0 +1,166 @@
+[
+  {
+    "id": "pacholing-3",
+    "active": true,
+    "order": 1,
+    "status": "available",
+    "category": "plots",
+    "kicker": "New plot release",
+    "title": "Pacholing 3 Residential Plots",
+    "location": "North East of Sanyang, close to Tulip Gardens",
+    "price": "From D380,000 GMD",
+    "image": "images/properties/pacholing-3-plot-plan.jpg",
+    "imageAlt": "Pacholing 3 Residential Plots advert",
+    "advertButtonLabel": "View Plan",
+    "totalPlots": 28,
+    "soldPlots": 0,
+    "meta": [
+      "400-621 m2",
+      "Road access",
+      "Multiple plot sizes"
+    ],
+    "details": [
+      [
+        "Location",
+        "North East of Sanyang"
+      ],
+      [
+        "Nearby",
+        "Close to Tulip Gardens"
+      ],
+      [
+        "Plot sizes",
+        "400 m2, 460 m2, 540 m2 and 621 m2"
+      ],
+      [
+        "Pricing",
+        "D380,000, D440,000, D510,000 and D590,000 GMD"
+      ],
+      [
+        "Access",
+        "Internal road network"
+      ]
+    ],
+    "investmentTitle": "A flexible land release near Sanyang's growth corridor.",
+    "description": "Pacholing 3 offers multiple plot sizes for buyers seeking residential land in a developing area close to Sanyang and Tulip Gardens. The release is suitable for private homes, staged investment and buyers who want a clear entry point into The Gambia's coastal property market.",
+    "highlights": [
+      "Multiple price points",
+      "Residential potential",
+      "Close to Sanyang",
+      "Road access"
+    ],
+    "whatsappText": "Hello Estate4Mission, I would like more information about the Pacholing 3 Residential Plots."
+  },
+  {
+    "id": "pacholing-2",
+    "active": true,
+    "order": 2,
+    "status": "available",
+    "category": "plots",
+    "kicker": "Title verified",
+    "title": "Pacholing 2 Residential Plots",
+    "location": "Between Sanyang and Jabanjelly, near TAF Tulip Gardens",
+    "price": "D440,000 GMD",
+    "image": "images/properties/pacholing-2-plots-sale.jpg",
+    "imageAlt": "Pacholing 2 Residential Plots advert",
+    "advertButtonLabel": "View Advert",
+    "totalPlots": 18,
+    "soldPlots": 0,
+    "meta": [
+      "22 x 21.3 m",
+      "468.6 m2",
+      "Residential use"
+    ],
+    "details": [
+      [
+        "Location",
+        "Between Sanyang and Jabanjelly"
+      ],
+      [
+        "Nearby",
+        "Near TAF Tulip Gardens"
+      ],
+      [
+        "Plot size",
+        "22 x 21.3 m"
+      ],
+      [
+        "Area",
+        "468.6 m2"
+      ],
+      [
+        "Use",
+        "Residential"
+      ],
+      [
+        "Title",
+        "Verified"
+      ]
+    ],
+    "investmentTitle": "Verified residential plots in an accessible location.",
+    "description": "Pacholing 2 is positioned between Sanyang and Jabanjelly, close to TAF Tulip Gardens. The offer is clear and easy to understand: residential plots of 468.6 m2 with verified title information and direct local support from the Estate4Mission network.",
+    "highlights": [
+      "Verified title",
+      "Residential use",
+      "468.6 m2 plots",
+      "Near TAF Tulip Gardens"
+    ],
+    "whatsappText": "Hello Estate4Mission, I would like more information about the Pacholing 2 Residential Plots."
+  },
+  {
+    "id": "kunkajang",
+    "active": true,
+    "order": 3,
+    "status": "available",
+    "category": "plots",
+    "kicker": "Strategic location",
+    "title": "Kunkajang Residential Plots",
+    "location": "Kunkajang, peaceful and accessible community",
+    "price": "From D275,000 GMD",
+    "image": "images/properties/kunkajang-plots-sale.jpg",
+    "imageAlt": "Kunkajang Residential Plots advert",
+    "advertButtonLabel": "View Advert",
+    "totalPlots": 50,
+    "soldPlots": 0,
+    "meta": [
+      "400-496 m2",
+      "8 m roads",
+      "Title verified"
+    ],
+    "details": [
+      [
+        "Location",
+        "Kunkajang"
+      ],
+      [
+        "Plot types",
+        "20 x 20 m, 16 x 31 m and 15 x 31 m"
+      ],
+      [
+        "Areas",
+        "400 m2, 496 m2 and 465 m2"
+      ],
+      [
+        "Pricing",
+        "D275,000, D340,000 and D320,000 GMD"
+      ],
+      [
+        "Roads",
+        "8 meter internal road network"
+      ],
+      [
+        "Title",
+        "Verified"
+      ]
+    ],
+    "investmentTitle": "A larger residential land opportunity with strong access roads.",
+    "description": "Kunkajang offers a broad release of residential plots in a peaceful and accessible community. With multiple plot types, 8 meter internal roads and verified title positioning, it is designed for buyers who want room for future growth and long-term value.",
+    "highlights": [
+      "8 meter roads",
+      "Multiple plot types",
+      "Verified title",
+      "Future growth potential"
+    ],
+    "whatsappText": "Hello Estate4Mission, I would like more information about the Kunkajang Residential Plots."
+  }
+]

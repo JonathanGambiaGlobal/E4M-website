@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Estate4Mission plot details, availability and investment information for verified land opportunities in The Gambia."
+    />
+    <title>Plot Details | Estate4Mission</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="plot-detail-page">
+    <div class="loader" aria-label="Loading Estate4Mission">
+      <div class="loader-mark">
+        <img src="images/logo.png" alt="Estate4Mission logo" />
+      </div>
+    </div>
+
+    <header class="site-header scrolled" id="top">
+      <nav class="navbar" aria-label="Primary navigation">
+        <a href="index.html#home" class="brand" aria-label="Estate4Mission home">
+          <img src="images/logo.png" alt="Estate4Mission logo" />
+          <span>Estate4Mission</span>
+        </a>
+
+        <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="nav-menu">
+          <a href="index.html#about">About</a>
+          <a href="index.html#why-gambia">Why Gambia</a>
+          <a href="index.html#properties">Properties</a>
+          <a href="index.html#market-updates">Market Updates</a>
+          <a href="index.html#contact">Contact</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="plot-hero">
+        <div class="plot-hero-copy reveal">
+          <a class="back-link" href="index.html#properties">Back to properties</a>
+          <p class="eyebrow" data-plot-kicker>Current plot for sale</p>
+          <h1 data-plot-title>Plot details</h1>
+          <p data-plot-location></p>
+          <div class="plot-hero-actions">
+            <a class="btn btn-primary" data-whatsapp-link target="_blank" rel="noopener noreferrer">Contact on WhatsApp</a>
+          </div>
+        </div>
+
+        <div class="plot-hero-card reveal">
+          <img data-plot-image src="" alt="" />
+          <span class="badge available">Available</span>
+        </div>
+      </section>
+
+      <section class="section plot-details-section">
+        <div class="plot-details-grid">
+          <article class="plot-summary-card reveal">
+            <p class="eyebrow">Availability</p>
+            <h2 data-availability-heading>Available plots</h2>
+            <div class="availability detail-availability" data-availability>
+              <div class="availability-top">
+                <span>Sold</span>
+                <strong data-availability-label>Loading availability</strong>
+              </div>
+              <div class="availability-track" aria-hidden="true">
+                <span data-availability-bar></span>
+              </div>
+              <p data-availability-remaining></p>
+            </div>
+            <strong class="detail-price" data-plot-price></strong>
+          </article>
+
+          <article class="plot-info-card reveal">
+            <p class="eyebrow">Plot information</p>
+            <div class="detail-list" data-plot-details></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section plot-body-section">
+        <div class="plot-body-grid">
+          <article class="plot-content-panel reveal">
+            <p class="eyebrow">Investment notes</p>
+            <h2 data-plot-investment-title></h2>
+            <p data-plot-description></p>
+            <div class="plot-highlight-grid" data-plot-highlights></div>
+          </article>
+
+          <aside class="plot-contact-panel reveal">
+            <p class="eyebrow">Speak with us</p>
+            <h2>Request current availability.</h2>
+            <p>
+              For exact plot numbers, current reservation status and next steps, contact the Estate4Mission team directly.
+            </p>
+            <div class="contact-details compact">
+              <a href="tel:+2207735574">Sanna: +220 773 5574</a>
+              <a href="tel:+2207063800">Joop: +220 706 3800</a>
+            </div>
+            <a class="btn btn-primary whatsapp-detail-button" data-whatsapp-link target="_blank" rel="noopener noreferrer">
+              <img src="images/whatsapp-logo.avif" alt="" />
+              WhatsApp
+            </a>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-brand">
+        <img src="images/logo.png" alt="Estate4Mission logo" />
+        <div>
+          <strong>Estate4Mission</strong>
+          <p>Luxury real estate investments in The Gambia with measurable local impact.</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="index.html#about">About</a>
+        <a href="index.html#properties">Properties</a>
+        <a href="index.html#market-updates">Market Updates</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+      <p class="copyright">&copy; <span id="year"></span> Estate4Mission Ltd. All rights reserved.</p>
+    </footer>
+
+    <a class="whatsapp-float" href="https://wa.me/2207735574" target="_blank" rel="noopener noreferrer" aria-label="Contact Estate4Mission on WhatsApp">
+      <img src="images/whatsapp-logo.avif" alt="" />
+    </a>
+    <button class="scroll-top" type="button" aria-label="Scroll to top">Up</button>
+
+    <script src="js/plot.js"></script>
+  </body>
+</html>
