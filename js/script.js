@@ -23,13 +23,16 @@ const adminRows = document.querySelector("[data-admin-rows]");
 const adminLoginMessage = document.querySelector("[data-admin-login-message]");
 const adminEditorMessage = document.querySelector("[data-admin-editor-message]");
 const adminAdd = document.querySelector(".admin-add");
-const newsList = document.querySelector("[data-news-list]");
 const impressionSlider = document.querySelector("[data-impression-slider]");
 const STORAGE_KEY = "estate4mission-admin-password";
-const NEWS_REFRESH_MS = 30 * 60 * 1000;
 const IMPRESSION_REFRESH_MS = 5200;
 let properties = [];
 let activeFilter = "all";
+
+const getFallbackProperties = () =>
+  Array.isArray(window.ESTATE4MISSION_FALLBACK_PROPERTIES)
+    ? window.ESTATE4MISSION_FALLBACK_PROPERTIES.map((property) => ({ ...property }))
+    : [];
 
 body.classList.add("loading");
 
@@ -151,7 +154,12 @@ const loadProperties = async () => {
     const payload = await requestJson("/api/properties");
     properties = payload.properties || [];
   } catch {
-    properties = [];
+    try {
+      const payload = await requestJson("assets/properties.json");
+      properties = Array.isArray(payload) ? payload : payload.properties || [];
+    } catch {
+      properties = getFallbackProperties();
+    }
   }
 };
 
@@ -177,6 +185,54 @@ const clampNumber = (value, min, max) => {
 };
 
 const formatPlotLabel = (count) => `${count} ${count === 1 ? "plot" : "plots"}`;
+
+const parseSoldPlotNumbers = (value, totalPlots) => {
+  const source = Array.isArray(value)
+    ? value
+    : String(value || "")
+        .split(/[\n,]/)
+        .map((item) => item.trim());
+
+  return [
+    ...new Set(
+      source
+        .map((item) => Number(item))
+        .filter((number) => Number.isInteger(number) && number >= 1 && number <= totalPlots)
+    ),
+  ].sort((a, b) => a - b);
+};
+
+const renderPlotMiniMap = (property) => {
+  const totalPlots = Number(property.totalPlots) || 0;
+  const soldPlotNumbers = parseSoldPlotNumbers(property.soldPlotNumbers, totalPlots);
+  const soldPlots = soldPlotNumbers.length || clampNumber(property.soldPlots || 0, 0, totalPlots);
+  const soldSet = new Set(soldPlotNumbers);
+  const visiblePlots = Math.min(totalPlots, 60);
+  const cells = [];
+
+  for (let index = 1; index <= visiblePlots; index += 1) {
+    const isSold = soldSet.size ? soldSet.has(index) : index <= soldPlots;
+    cells.push(`<span class="${isSold ? "sold" : "available"}" title="Plot ${index}: ${isSold ? "Sold" : "Available"}">${index}</span>`);
+  }
+
+  if (totalPlots > visiblePlots) {
+    cells.push(`<span class="more">+${totalPlots - visiblePlots}</span>`);
+  }
+
+  return `
+    <div class="plot-availability-map" aria-label="${escapeHtml(property.title)} plot availability">
+      <div class="plot-map-head">
+        <span>Plot overview</span>
+        <strong>${formatPlotLabel(totalPlots - soldPlots)} available</strong>
+      </div>
+      <div class="plot-map-grid">${cells.join("")}</div>
+      <div class="plot-map-legend">
+        <span><i class="available"></i>Available</span>
+        <span><i class="sold"></i>Sold</span>
+      </div>
+    </div>
+  `;
+};
 
 const updateAvailabilityDisplays = () => {
   getPlotCards().forEach((card) => {
@@ -259,7 +315,8 @@ const renderPropertyCards = () => {
 
   propertyGrid.innerHTML = properties
     .map((property) => {
-      const soldPlots = clampNumber(property.soldPlots, 0, property.totalPlots);
+      const soldPlotNumbers = parseSoldPlotNumbers(property.soldPlotNumbers, property.totalPlots);
+      const soldPlots = soldPlotNumbers.length || clampNumber(property.soldPlots, 0, property.totalPlots);
       const meta = (property.meta || [])
         .map((item) => `<span>${escapeHtml(item)}</span>`)
         .join("");
@@ -295,8 +352,10 @@ const renderPropertyCards = () => {
               </div>
               <p data-availability-remaining></p>
             </div>
+            ${renderPlotMiniMap({ ...property, soldPlots })}
             <div class="card-actions">
               <a href="plot.html?id=${encodeURIComponent(property.id)}" class="btn btn-small btn-primary">View Details</a>
+              <a href="https://wa.me/2207735574?text=${encodeURIComponent(`Hello Estate4Mission, I would like to buy or reserve a plot in ${property.title}.`)}" class="btn btn-small btn-gold" target="_blank" rel="noopener noreferrer">Buy It Now</a>
               <button
                 class="btn btn-small btn-outline advert-trigger"
                 type="button"
@@ -497,6 +556,10 @@ const renderAdminRows = () => {
         </label>
       </div>
       <label class="admin-full-field">
+        Sold plot numbers, separated by commas
+        <input type="text" name="soldPlotNumbers" value="${escapeHtml((property.soldPlotNumbers || []).join(", "))}" placeholder="Example: 1, 4, 12" />
+      </label>
+      <label class="admin-full-field">
         Card chips, one per line
         <textarea name="meta" rows="3">${escapeHtml(listToTextarea(property.meta))}</textarea>
       </label>
@@ -550,7 +613,8 @@ const collectAdminProperties = async () => {
     rows.map(async (row, index) => {
       const getField = (name) => row.querySelector(`[name="${name}"]`);
       const totalPlots = clampNumber(getField("totalPlots").value, 0, 9999);
-      const soldPlots = clampNumber(getField("soldPlots").value, 0, totalPlots);
+      const soldPlotNumbers = parseSoldPlotNumbers(getField("soldPlotNumbers").value, totalPlots);
+      const soldPlots = soldPlotNumbers.length || clampNumber(getField("soldPlots").value, 0, totalPlots);
       const imageFile = getField("imageFile").files[0];
       const title = getField("title").value.trim() || `Plot ${index + 1}`;
       const image = imageFile ? await readFileAsDataUrl(imageFile) : getField("image").value;
@@ -570,6 +634,7 @@ const collectAdminProperties = async () => {
         advertButtonLabel: properties[index]?.advertButtonLabel || "View Advert",
         totalPlots,
         soldPlots,
+        soldPlotNumbers,
         meta: textareaToList(getField("meta").value),
         details: textareaToPairs(getField("details").value),
         investmentTitle: getField("investmentTitle").value.trim(),
@@ -581,58 +646,8 @@ const collectAdminProperties = async () => {
   );
 };
 
-const renderNewsError = () => {
-  newsList.innerHTML = `
-    <article class="news-card">
-      <span>Unavailable</span>
-      <h3>Market updates are temporarily unavailable.</h3>
-      <p>The external news feeds could not be loaded right now. Please try again later.</p>
-    </article>
-  `;
-};
-
-const renderNews = (articles) => {
-  if (!articles.length) {
-    renderNewsError();
-    return;
-  }
-
-  newsList.innerHTML = articles
-    .map(
-      (article) => `
-        <article class="news-card reveal visible">
-          <span>${escapeHtml(article.topic || "Market")}</span>
-          <h3>${escapeHtml(article.title)}</h3>
-          <p>${escapeHtml(article.summary || "Read the original article for more context.")}</p>
-          <div class="news-meta">${escapeHtml(article.source || "External source")} · ${escapeHtml(formatArticleDate(article.publishedAt))}</div>
-          <a href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">Read full article</a>
-        </article>
-      `
-    )
-    .join("");
-};
-
-const loadNews = async ({ preserveExisting = false } = {}) => {
-  if (!newsList) {
-    return;
-  }
-
-  try {
-    const payload = await requestJson("/api/news");
-    renderNews(payload.articles || []);
-  } catch {
-    if (!preserveExisting || newsList.querySelector(".news-card-loading")) {
-      renderNewsError();
-    }
-  }
-};
-
 initialiseImpressionSlider();
 initialiseProperties();
-loadNews();
-setInterval(() => {
-  loadNews({ preserveExisting: true });
-}, NEWS_REFRESH_MS);
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {

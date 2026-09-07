@@ -14,6 +14,7 @@
     "advertButtonLabel": "View Plan",
     "totalPlots": 28,
     "soldPlots": 0,
+    "soldPlotNumbers": [],
     "meta": [
       "400-621 m2",
       "Road access",
@@ -66,6 +67,7 @@
     "advertButtonLabel": "View Advert",
     "totalPlots": 18,
     "soldPlots": 0,
+    "soldPlotNumbers": [],
     "meta": [
       "22 x 21.3 m",
       "468.6 m2",
@@ -122,6 +124,7 @@
     "advertButtonLabel": "View Advert",
     "totalPlots": 50,
     "soldPlots": 0,
+    "soldPlotNumbers": [],
     "meta": [
       "400-496 m2",
       "8 m roads",

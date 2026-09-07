@@ -7,36 +7,6 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Estate4Mission2026";
 const ROOT = __dirname;
 const DATA_FILE = path.join(ROOT, "assets", "plot-sales.json");
 const PROPERTIES_FILE = path.join(ROOT, "assets", "properties.json");
-const NEWS_CACHE_MS = 30 * 60 * 1000;
-let newsCache = {
-  fetchedAt: 0,
-  articles: [],
-};
-
-const newsFeeds = [
-  {
-    topic: "The Gambia",
-    url: "https://news.google.com/rss/search?q=%22The%20Gambia%22%20%28real%20estate%20OR%20property%20OR%20housing%20OR%20infrastructure%20OR%20tourism%20investment%20OR%20land%20development%29&hl=en-US&gl=US&ceid=US:en",
-  },
-  {
-    topic: "The Gambia",
-    url: "https://news.google.com/rss/search?q=%22Gambia%22%20%28property%20market%20OR%20real%20estate%20investment%20OR%20construction%20OR%20tourism%20development%29&hl=en-US&gl=US&ceid=US:en",
-  },
-];
-
-const gambiaTerms = [
-  "gambia",
-  "gambian",
-  "banjul",
-  "brufut",
-  "kololi",
-  "sanyang",
-  "bijilo",
-  "kunkajang",
-  "jabanjelly",
-  "pacholing",
-  "taf tulip",
-];
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -246,6 +216,22 @@ const isSafeImage = (value = "") =>
 const sortProperties = (properties) =>
   [...properties].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 
+const toPlotNumbers = (value, totalPlots) => {
+  const source = Array.isArray(value)
+    ? value
+    : String(value || "")
+        .split(/[\n,]/)
+        .map((item) => item.trim());
+
+  return [
+    ...new Set(
+      source
+        .map((item) => Number(item))
+        .filter((number) => Number.isInteger(number) && number >= 1 && number <= totalPlots)
+    ),
+  ].sort((a, b) => a - b);
+};
+
 const sanitizeProperties = (properties) => {
   const source = Array.isArray(properties) ? properties : defaultProperties;
   const seen = new Set();
@@ -264,7 +250,8 @@ const sanitizeProperties = (properties) => {
     seen.add(id);
 
     const totalPlots = toInteger(property.totalPlots, 0);
-    const soldPlots = Math.min(toInteger(property.soldPlots, 0), totalPlots);
+    const soldPlotNumbers = toPlotNumbers(property.soldPlotNumbers, totalPlots);
+    const soldPlots = soldPlotNumbers.length || Math.min(toInteger(property.soldPlots, 0), totalPlots);
     const status = ["available", "reserved", "sold"].includes(property.status) ? property.status : "available";
     const image = isSafeImage(property.image) ? property.image : "images/properties/pacholing-3-plot-plan.jpg";
 
@@ -283,6 +270,7 @@ const sanitizeProperties = (properties) => {
       advertButtonLabel: toText(property.advertButtonLabel, "View Advert"),
       totalPlots,
       soldPlots,
+      soldPlotNumbers,
       meta: toList(property.meta, ["Residential plots"]),
       details: toPairs(property.details, [["Location", toText(property.location, "The Gambia")]]),
       investmentTitle: toText(property.investmentTitle, `${title} investment opportunity.`),
@@ -350,144 +338,6 @@ const sanitizeSales = (sales) => {
   );
 };
 
-const decodeEntities = (value = "") =>
-  value
-    .replace(/<!\[CDATA\[(.*?)\]\]>/gs, "$1")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-
-const stripHtml = (value = "") =>
-  decodeEntities(value)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-const getTagValue = (item, tagName) => {
-  const match = item.match(new RegExp(`<${tagName}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tagName}>`, "i"));
-  return match ? decodeEntities(match[1]).trim() : "";
-};
-
-const getSourceName = (item, fallback) => {
-  const sourceMatch = item.match(/<source(?:\s[^>]*)?>([\s\S]*?)<\/source>/i);
-  return sourceMatch ? stripHtml(sourceMatch[1]) : fallback;
-};
-
-const cleanArticleTitle = (title, source) => {
-  const cleanTitle = stripHtml(title);
-
-  if (!source) {
-    return cleanTitle;
-  }
-
-  return cleanTitle.replace(new RegExp(`\\s+-\\s+${source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"), "").trim();
-};
-
-const createSummary = (description, title, source, topic) => {
-  const cleanDescription = stripHtml(description);
-  const cleanTitle = stripHtml(title);
-  const normalizedDescription = cleanDescription
-    .replace(source, "")
-    .replace(/\s+/g, " ")
-    .replace(/\s+-\s*$/, "")
-    .trim();
-  const normalizedTitle = cleanArticleTitle(cleanTitle, source).replace(/\s+/g, " ").trim();
-  const duplicateDescription = normalizedDescription === normalizedTitle;
-  const summarySource = cleanDescription && cleanDescription !== cleanTitle && !duplicateDescription ? cleanDescription : "";
-  const summary = summarySource.replace(/\s+-\s+[^-]+$/, "").trim();
-
-  if (!summary) {
-    const headline = cleanArticleTitle(cleanTitle, source).replace(/[.?!]+$/, "");
-    return `A recent external market update covering ${topic}: ${headline}.`;
-  }
-
-  if (summary.length <= 190) {
-    return summary;
-  }
-
-  return `${summary.slice(0, 187).replace(/\s+\S*$/, "")}...`;
-};
-
-const parseRssFeed = (xml, feed) => {
-  const items = xml.match(/<item>[\s\S]*?<\/item>/gi) || [];
-
-  return items.map((item) => {
-    const rawTitle = stripHtml(getTagValue(item, "title"));
-    const link = stripHtml(getTagValue(item, "link"));
-    const publishedAt = stripHtml(getTagValue(item, "pubDate"));
-    const description = getTagValue(item, "description");
-    const source = getSourceName(item, feed.topic);
-    const title = cleanArticleTitle(rawTitle, source);
-    const timestamp = Number.isNaN(Date.parse(publishedAt)) ? 0 : Date.parse(publishedAt);
-
-    return {
-      title,
-      source,
-      topic: feed.topic,
-      publishedAt,
-      timestamp,
-      summary: createSummary(description, rawTitle, source, feed.topic),
-      url: link,
-      searchText: `${rawTitle} ${description} ${source}`,
-    };
-  });
-};
-
-const isGambiaArticle = (article) => {
-  const haystack = `${article.searchText || ""}`.toLowerCase();
-  return gambiaTerms.some((term) => haystack.includes(term));
-};
-
-const fetchNews = async () => {
-  if (Date.now() - newsCache.fetchedAt < NEWS_CACHE_MS && newsCache.articles.length) {
-    return newsCache.articles;
-  }
-
-  const feedResponses = await Promise.allSettled(
-    newsFeeds.map(async (feed) => {
-      const response = await fetch(feed.url, {
-        headers: {
-          "User-Agent": "Estate4Mission market updates reader",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Could not load feed: ${feed.topic}`);
-      }
-
-      return parseRssFeed(await response.text(), feed);
-    })
-  );
-
-  const seenUrls = new Set();
-  const articles = feedResponses
-    .flatMap((result) => (result.status === "fulfilled" ? result.value : []))
-    .filter((article) => article.title && article.url)
-    .filter(isGambiaArticle)
-    .filter((article) => {
-      if (seenUrls.has(article.url)) {
-        return false;
-      }
-
-      seenUrls.add(article.url);
-      return true;
-    })
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, 9)
-    .map(({ searchText, ...article }) => article);
-
-  newsCache = {
-    fetchedAt: Date.now(),
-    articles,
-  };
-
-  return articles;
-};
-
 const serveStatic = async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const requestedPath = decodeURIComponent(url.pathname);
@@ -544,14 +394,6 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && req.url.startsWith("/api/plot-sales")) {
       sendJson(res, 200, { sales: await readSales() });
-      return;
-    }
-
-    if (req.method === "GET" && req.url.startsWith("/api/news")) {
-      sendJson(res, 200, {
-        articles: await fetchNews(),
-        updatedAt: new Date(newsCache.fetchedAt).toISOString(),
-      });
       return;
     }
 

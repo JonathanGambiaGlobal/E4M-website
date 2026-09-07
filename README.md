@@ -5,7 +5,6 @@ Premium Estate4Mission demo website with a small Node.js backend for:
 - Dynamic plot listings
 - Admin plot management
 - Plot detail pages
-- Gambia market news feed
 
 ## Local Run
 

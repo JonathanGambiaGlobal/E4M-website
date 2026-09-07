@@ -9,6 +9,11 @@ const params = new URLSearchParams(window.location.search);
 const plotId = params.get("id");
 let plot = null;
 
+const getFallbackProperties = () =>
+  Array.isArray(window.ESTATE4MISSION_FALLBACK_PROPERTIES)
+    ? window.ESTATE4MISSION_FALLBACK_PROPERTIES.map((property) => ({ ...property }))
+    : [];
+
 body.classList.add("loading");
 
 window.addEventListener("load", () => {
@@ -48,6 +53,22 @@ const clampNumber = (value, min, max) => {
 
 const formatPlotLabel = (count) => `${count} ${count === 1 ? "plot" : "plots"}`;
 
+const parseSoldPlotNumbers = (value, totalPlots) => {
+  const source = Array.isArray(value)
+    ? value
+    : String(value || "")
+        .split(/[\n,]/)
+        .map((item) => item.trim());
+
+  return [
+    ...new Set(
+      source
+        .map((item) => Number(item))
+        .filter((number) => Number.isInteger(number) && number >= 1 && number <= totalPlots)
+    ),
+  ].sort((a, b) => a - b);
+};
+
 const escapeHtml = (value = "") =>
   String(value)
     .replace(/&/g, "&amp;")
@@ -62,6 +83,38 @@ const setText = (selector, text) => {
   if (element) {
     element.textContent = text || "";
   }
+};
+
+const renderPlotMiniMap = () => {
+  const totalPlots = Number(plot.totalPlots) || 0;
+  const soldPlotNumbers = parseSoldPlotNumbers(plot.soldPlotNumbers, totalPlots);
+  const soldPlots = soldPlotNumbers.length || clampNumber(plot.soldPlots || 0, 0, totalPlots);
+  const soldSet = new Set(soldPlotNumbers);
+  const visiblePlots = Math.min(totalPlots, 80);
+  const cells = [];
+
+  for (let index = 1; index <= visiblePlots; index += 1) {
+    const isSold = soldSet.size ? soldSet.has(index) : index <= soldPlots;
+    cells.push(`<span class="${isSold ? "sold" : "available"}" title="Plot ${index}: ${isSold ? "Sold" : "Available"}">${index}</span>`);
+  }
+
+  if (totalPlots > visiblePlots) {
+    cells.push(`<span class="more">+${totalPlots - visiblePlots}</span>`);
+  }
+
+  return `
+    <div class="plot-availability-map detail-map" aria-label="${escapeHtml(plot.title)} plot availability">
+      <div class="plot-map-head">
+        <span>Plot overview</span>
+        <strong>${formatPlotLabel(totalPlots - soldPlots)} available</strong>
+      </div>
+      <div class="plot-map-grid">${cells.join("")}</div>
+      <div class="plot-map-legend">
+        <span><i class="available"></i>Available</span>
+        <span><i class="sold"></i>Sold</span>
+      </div>
+    </div>
+  `;
 };
 
 const renderMissingPlot = () => {
@@ -102,6 +155,10 @@ const renderPlot = () => {
     link.href = `https://wa.me/2207735574?text=${encodeURIComponent(plot.whatsappText)}`;
   });
 
+  document.querySelectorAll("[data-buy-link]").forEach((link) => {
+    link.href = `https://wa.me/2207735574?text=${encodeURIComponent(`Hello Estate4Mission, I would like to buy or reserve a plot in ${plot.title}.`)}`;
+  });
+
   const detailList = document.querySelector("[data-plot-details]");
   if (detailList) {
     detailList.innerHTML = (plot.details || [])
@@ -130,11 +187,17 @@ const renderPlot = () => {
       .join("");
   }
 
+  const map = document.querySelector("[data-detail-plot-map]");
+  if (map) {
+    map.innerHTML = renderPlotMiniMap();
+  }
+
   updateAvailability();
 };
 
 const updateAvailability = () => {
-  const soldPlots = clampNumber(plot.soldPlots || 0, 0, plot.totalPlots);
+  const soldPlotNumbers = parseSoldPlotNumbers(plot.soldPlotNumbers, plot.totalPlots);
+  const soldPlots = soldPlotNumbers.length || clampNumber(plot.soldPlots || 0, 0, plot.totalPlots);
   const availablePlots = plot.totalPlots - soldPlots;
   const soldPercentage = plot.totalPlots > 0 ? Math.round((soldPlots / plot.totalPlots) * 100) : 0;
 
@@ -154,6 +217,14 @@ const loadPlot = async () => {
     plot = payload.property;
     renderPlot();
   } catch {
+    const fallbackPlots = getFallbackProperties();
+    plot = fallbackPlots.find((item) => item.id === plotId);
+
+    if (plot) {
+      renderPlot();
+      return;
+    }
+
     renderMissingPlot();
   }
 };
