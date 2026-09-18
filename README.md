@@ -46,8 +46,20 @@ Health Check Path: /api/health
 ADMIN_PASSWORD = choose-a-secure-password
 ```
 
-5. Deploy. Render will create a public demo URL.
+5. To keep admin plot edits and polygon coordinates after redeploys/restarts, add a Render Disk and mount it at:
+
+```text
+/var/data
+```
+
+Then add this environment variable:
+
+```text
+DATA_DIR = /var/data
+```
+
+6. Deploy. Render will create a public demo URL.
 
 ## Important Demo Note
 
-On free hosting, local JSON file edits can reset after redeploys. This is fine for shareholder review, but production should use a database and image storage.
+When `DATA_DIR` points to a persistent server disk, admin changes are saved there and stay available after deploys and restarts. Without a persistent disk, local JSON file edits can reset after redeploys. For a larger production setup, use a database and image storage.

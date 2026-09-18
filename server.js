@@ -5,9 +5,11 @@ const path = require("path");
 const PORT = Number(process.env.PORT || 4174);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Estate4Mission2026";
 const ROOT = __dirname;
-const DATA_FILE = path.join(ROOT, "assets", "plot-sales.json");
-const PROPERTIES_FILE = path.join(ROOT, "assets", "properties.json");
-const LEADS_FILE = path.join(ROOT, "assets", "leads.json");
+const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(ROOT, "assets");
+const DATA_FILE = path.join(DATA_DIR, "plot-sales.json");
+const PROPERTIES_FILE = path.join(DATA_DIR, "properties.json");
+const LEADS_FILE = path.join(DATA_DIR, "leads.json");
+const DEFAULT_PROPERTIES_FILE = path.join(ROOT, "assets", "properties.json");
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -337,7 +339,11 @@ const ensurePropertiesFile = async () => {
   try {
     await fs.access(PROPERTIES_FILE);
   } catch {
-    await fs.writeFile(PROPERTIES_FILE, `${JSON.stringify(defaultProperties, null, 2)}\n`);
+    try {
+      await fs.copyFile(DEFAULT_PROPERTIES_FILE, PROPERTIES_FILE);
+    } catch {
+      await fs.writeFile(PROPERTIES_FILE, `${JSON.stringify(defaultProperties, null, 2)}\n`);
+    }
   }
 };
 
@@ -350,7 +356,8 @@ const readProperties = async () => {
 const writeProperties = async (properties) => {
   await ensurePropertiesFile();
   const sanitized = sanitizeProperties(properties);
-  await fs.writeFile(PROPERTIES_FILE, `${JSON.stringify(sanitized, null, 2)}\n`);
+  const propertiesJson = `${JSON.stringify(sanitized, null, 2)}\n`;
+  await fs.writeFile(PROPERTIES_FILE, propertiesJson);
   return sanitized;
 };
 
