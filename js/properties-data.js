@@ -28,6 +28,10 @@ window.ESTATE4MISSION_FALLBACK_PROPERTIES = [
       "Pacholing 3 offers multiple plot sizes for buyers seeking residential land in a developing area close to Sanyang and Tulip Gardens. The release is suitable for private homes, staged investment and buyers who want a clear entry point into The Gambia's coastal property market.",
     highlights: ["Multiple price points", "Residential potential", "Close to Sanyang", "Road access"],
     whatsappText: "Hello Estate4Mission, I would like more information about the Pacholing 3 Residential Plots.",
+    mapEmbedUrl: "",
+    mapLinkUrl: "",
+    mapNote: "",
+    polygonCoordinates: [],
   },
   {
     id: "pacholing-2",
@@ -59,6 +63,10 @@ window.ESTATE4MISSION_FALLBACK_PROPERTIES = [
       "Pacholing 2 is positioned between Sanyang and Jabanjelly, close to TAF Tulip Gardens. The offer is clear and easy to understand: residential plots of 468.6 m2 with verified title information and direct local support from the Estate4Mission network.",
     highlights: ["Verified title", "Residential use", "468.6 m2 plots", "Near TAF Tulip Gardens"],
     whatsappText: "Hello Estate4Mission, I would like more information about the Pacholing 2 Residential Plots.",
+    mapEmbedUrl: "",
+    mapLinkUrl: "",
+    mapNote: "",
+    polygonCoordinates: [],
   },
   {
     id: "kunkajang",
@@ -90,5 +98,9 @@ window.ESTATE4MISSION_FALLBACK_PROPERTIES = [
       "Kunkajang offers a broad release of residential plots in a peaceful and accessible community. With multiple plot types, 8 meter internal roads and verified title positioning, it is designed for buyers who want room for future growth and long-term value.",
     highlights: ["8 meter roads", "Multiple plot types", "Verified title", "Future growth potential"],
     whatsappText: "Hello Estate4Mission, I would like more information about the Kunkajang Residential Plots.",
+    mapEmbedUrl: "",
+    mapLinkUrl: "",
+    mapNote: "",
+    polygonCoordinates: [],
   },
 ];

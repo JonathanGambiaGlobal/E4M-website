@@ -50,7 +50,11 @@
       "Close to Sanyang",
       "Road access"
     ],
-    "whatsappText": "Hello Estate4Mission, I would like more information about the Pacholing 3 Residential Plots."
+    "whatsappText": "Hello Estate4Mission, I would like more information about the Pacholing 3 Residential Plots.",
+    "mapEmbedUrl": "",
+    "mapLinkUrl": "",
+    "mapNote": "",
+    "polygonCoordinates": []
   },
   {
     "id": "pacholing-2",
@@ -107,7 +111,11 @@
       "468.6 m2 plots",
       "Near TAF Tulip Gardens"
     ],
-    "whatsappText": "Hello Estate4Mission, I would like more information about the Pacholing 2 Residential Plots."
+    "whatsappText": "Hello Estate4Mission, I would like more information about the Pacholing 2 Residential Plots.",
+    "mapEmbedUrl": "",
+    "mapLinkUrl": "",
+    "mapNote": "",
+    "polygonCoordinates": []
   },
   {
     "id": "kunkajang",
@@ -164,6 +172,27 @@
       "Verified title",
       "Future growth potential"
     ],
-    "whatsappText": "Hello Estate4Mission, I would like more information about the Kunkajang Residential Plots."
+    "whatsappText": "Hello Estate4Mission, I would like more information about the Kunkajang Residential Plots.",
+    "mapEmbedUrl": "",
+    "mapLinkUrl": "",
+    "mapNote": "",
+    "polygonCoordinates": [
+      [
+        13.291938057144991,
+        -16.736557052527335
+      ],
+      [
+        13.291764659293767,
+        -16.73547606495118
+      ],
+      [
+        13.29110423092014,
+        -16.735563654225167
+      ],
+      [
+        13.29126865342775,
+        -16.736635346310226
+      ]
+    ]
   }
 ]

@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css?v=20260917-coordinate-admin-v1" />
   </head>
   <body>
     <div class="loader" aria-label="Loading Estate4Mission">
@@ -39,7 +39,7 @@
         <div class="nav-menu">
           <a href="#about">About</a>
           <a href="#why-gambia">Why Gambia</a>
-          <a href="#properties">Properties</a>
+          <a href="#properties" class="nav-cta">Plots for Sale</a>
           <a href="#contact">Contact</a>
         </div>
       </nav>
@@ -66,6 +66,32 @@
         </div>
         <a href="#about" class="scroll-indicator" aria-label="Scroll to About">
           <span></span>
+        </a>
+      </section>
+
+      <section class="plot-spotlight reveal" aria-label="Current plots for sale">
+        <div class="plot-spotlight-copy">
+          <p class="eyebrow">Plots now available</p>
+          <h2>Secure your place in The Gambia before the best plots are gone.</h2>
+          <p>
+            Explore verified Estate4Mission land opportunities with clear availability, plot maps and direct WhatsApp contact.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#properties">View Current Plots</a>
+            <a class="btn btn-outline" href="#contact">Ask a Question</a>
+          </div>
+        </div>
+        <a class="plot-spotlight-card" href="#properties" data-plot-spotlight-card>
+          <div class="plot-spotlight-image">
+            <img src="images/properties/pacholing-2-plots-sale.jpg" alt="Estate4Mission plot opportunity preview" data-plot-spotlight-image />
+            <span data-plot-spotlight-status>Available</span>
+          </div>
+          <div class="plot-spotlight-body">
+            <p class="listing-kicker" data-plot-spotlight-kicker>Featured plot release</p>
+            <h3 data-plot-spotlight-title>Current Estate4Mission plots</h3>
+            <p data-plot-spotlight-location>Click through to see current availability.</p>
+            <strong data-plot-spotlight-price>View opportunities</strong>
+          </div>
         </a>
       </section>
 
@@ -429,11 +455,18 @@
             <button class="btn btn-primary btn-small" type="submit">Save Changes</button>
           </div>
           <p class="admin-message" data-admin-editor-message></p>
+          <section class="admin-leads" data-admin-leads-section>
+            <div class="admin-leads-head">
+              <div><p class="eyebrow">Lead follow-up</p><h4>Website enquiries</h4></div>
+              <button class="btn btn-outline btn-small admin-leads-refresh" type="button">Refresh</button>
+            </div>
+            <div class="admin-leads-list" data-admin-leads></div>
+          </section>
         </form>
       </div>
     </div>
 
     <script src="js/properties-data.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=20260917-leads-v1"></script>
   </body>
 </html>

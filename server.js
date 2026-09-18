@@ -7,6 +7,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Estate4Mission2026";
 const ROOT = __dirname;
 const DATA_FILE = path.join(ROOT, "assets", "plot-sales.json");
 const PROPERTIES_FILE = path.join(ROOT, "assets", "properties.json");
+const LEADS_FILE = path.join(ROOT, "assets", "leads.json");
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -16,8 +17,25 @@ const MIME_TYPES = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
+  ".avif": "image/avif",
   ".webp": "image/webp",
   ".svg": "image/svg+xml",
+};
+
+const getCacheControl = (extension) => {
+  if ([".avif", ".jpg", ".jpeg", ".png", ".webp", ".svg"].includes(extension)) {
+    return "public, max-age=31536000";
+  }
+
+  if ([".css", ".js"].includes(extension)) {
+    return "no-cache";
+  }
+
+  if (extension === ".html") {
+    return "no-cache";
+  }
+
+  return "no-store";
 };
 
 const defaultSales = {
@@ -213,6 +231,31 @@ const isSafeImage = (value = "") =>
   /^images\/properties\/[\w./-]+\.(avif|jpg|jpeg|png|webp)$/i.test(value) ||
   /^data:image\/(avif|jpeg|jpg|png|webp);base64,[a-z0-9+/=]+$/i.test(value);
 
+const isSafeMapUrl = (value = "") => {
+  const text = String(value || "").trim();
+
+  if (!text) {
+    return true;
+  }
+
+  try {
+    const url = new URL(text);
+    return (
+      url.protocol === "https:" &&
+      ["www.google.com", "google.com", "maps.google.com", "www.google.nl", "maps.app.goo.gl"].includes(url.hostname)
+    );
+  } catch {
+    return false;
+  }
+};
+
+const sanitizePolygonCoordinates = (value) =>
+  Array.isArray(value)
+    ? value
+        .map((point) => (Array.isArray(point) ? point.slice(0, 2).map(Number) : null))
+        .filter((point) => point && point.length === 2 && point.every(Number.isFinite))
+    : [];
+
 const sortProperties = (properties) =>
   [...properties].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 
@@ -280,6 +323,10 @@ const sanitizeProperties = (properties) => {
       ),
       highlights: toList(property.highlights, ["Verified opportunity", "Local support"]),
       whatsappText: toText(property.whatsappText, `Hello Estate4Mission, I would like more information about ${title}.`),
+      mapEmbedUrl: isSafeMapUrl(property.mapEmbedUrl) ? toText(property.mapEmbedUrl) : "",
+      mapLinkUrl: isSafeMapUrl(property.mapLinkUrl) ? toText(property.mapLinkUrl) : "",
+      mapNote: toText(property.mapNote),
+      polygonCoordinates: sanitizePolygonCoordinates(property.polygonCoordinates),
     };
   });
 };
@@ -306,6 +353,32 @@ const writeProperties = async (properties) => {
   await fs.writeFile(PROPERTIES_FILE, `${JSON.stringify(sanitized, null, 2)}\n`);
   return sanitized;
 };
+
+const ensureLeadsFile = async () => {
+  await fs.mkdir(path.dirname(LEADS_FILE), { recursive: true });
+  try {
+    await fs.access(LEADS_FILE);
+  } catch {
+    await fs.writeFile(LEADS_FILE, "[]\n");
+  }
+};
+
+const readLeads = async () => {
+  await ensureLeadsFile();
+  const raw = await fs.readFile(LEADS_FILE, "utf8");
+  const leads = JSON.parse(raw);
+  return Array.isArray(leads) ? leads : [];
+};
+
+const writeLeads = async (leads) => {
+  await ensureLeadsFile();
+  await fs.writeFile(LEADS_FILE, `${JSON.stringify(leads, null, 2)}\n`);
+  return leads;
+};
+
+const cleanLeadText = (value, max = 500) => String(value || "").trim().slice(0, max);
+
+const leadAction = (value) => ["whatsapp", "buy", "availability"].includes(value) ? value : "whatsapp";
 
 const ensureDataFile = async () => {
   await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
@@ -354,6 +427,7 @@ const serveStatic = async (req, res) => {
     const extension = path.extname(filePath).toLowerCase();
     res.writeHead(200, {
       "Content-Type": MIME_TYPES[extension] || "application/octet-stream",
+      "Cache-Control": getCacheControl(extension),
     });
     res.end(file);
   } catch {
@@ -397,6 +471,37 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && req.url === "/api/leads") {
+      const body = await readBody(req);
+      const properties = await readProperties();
+      const property = properties.find((item) => item.id === cleanLeadText(body.propertyId, 80) && item.active);
+      const name = cleanLeadText(body.name, 120);
+      const phone = cleanLeadText(body.phone, 80);
+      const email = cleanLeadText(body.email, 160);
+
+      if (!property || !name || (!phone && !email) || body.consent !== true) {
+        sendJson(res, 400, { ok: false, message: "Name, phone or email, and consent are required." });
+        return;
+      }
+
+      const leads = await readLeads();
+      const lead = {
+        id: "lead-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+        createdAt: new Date().toISOString(),
+        status: "new",
+        propertyId: property.id,
+        propertyTitle: property.title,
+        action: leadAction(body.action),
+        name,
+        phone,
+        email,
+        message: cleanLeadText(body.message, 1000),
+      };
+      await writeLeads([lead, ...leads].slice(0, 5000));
+      sendJson(res, 201, { ok: true, leadId: lead.id });
+      return;
+    }
+
     if (req.method === "POST" && req.url === "/api/admin/login") {
       const body = await readBody(req);
       sendJson(res, body.password === ADMIN_PASSWORD ? 200 : 401, {
@@ -429,6 +534,35 @@ const server = http.createServer(async (req, res) => {
       const sales = sanitizeSales(body.sales || {});
       await writeSales(sales);
       sendJson(res, 200, { ok: true, sales });
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/api/admin/leads") {
+      const body = await readBody(req);
+      if (body.password !== ADMIN_PASSWORD) {
+        sendJson(res, 401, { ok: false, message: "Unauthorized" });
+        return;
+      }
+      sendJson(res, 200, { ok: true, leads: await readLeads() });
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/api/admin/leads/update") {
+      const body = await readBody(req);
+      if (body.password !== ADMIN_PASSWORD) {
+        sendJson(res, 401, { ok: false, message: "Unauthorized" });
+        return;
+      }
+      const statuses = ["new", "contacted", "follow_up", "won", "closed"];
+      const leads = await readLeads();
+      const index = leads.findIndex((lead) => lead.id === body.id);
+      if (index < 0 || !statuses.includes(body.status)) {
+        sendJson(res, 400, { ok: false, message: "Lead or status not found" });
+        return;
+      }
+      leads[index] = { ...leads[index], status: body.status };
+      await writeLeads(leads);
+      sendJson(res, 200, { ok: true, lead: leads[index] });
       return;
     }
 

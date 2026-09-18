@@ -8,6 +8,11 @@ const year = document.querySelector("#year");
 const params = new URLSearchParams(window.location.search);
 const plotId = params.get("id");
 let plot = null;
+const leadModal = document.querySelector("[data-lead-modal]");
+const leadForm = document.querySelector("[data-lead-form]");
+const leadMessage = document.querySelector("[data-lead-message]");
+const leadSummary = document.querySelector("[data-lead-plot-summary]");
+let pendingLeadAction = "whatsapp";
 
 const getFallbackProperties = () =>
   Array.isArray(window.ESTATE4MISSION_FALLBACK_PROPERTIES)
@@ -27,11 +32,13 @@ if (year) {
   year.textContent = new Date().getFullYear();
 }
 
-const requestJson = async (url) => {
+const requestJson = async (url, options = {}) => {
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
+      ...(options.headers || {}),
     },
+    ...options,
   });
   const payload = await response.json();
 
@@ -69,6 +76,23 @@ const parseSoldPlotNumbers = (value, totalPlots) => {
   ].sort((a, b) => a - b);
 };
 
+const getIndicativeSoldSet = (totalPlots, soldPlots, visiblePlots, seed = "") => {
+  const soldVisiblePlots = Math.min(soldPlots, visiblePlots);
+  const rankedPlots = Array.from({ length: visiblePlots }, (_, index) => index + 1)
+    .map((plotNumber) => {
+      const score = [...`${seed}-${plotNumber}`].reduce(
+        (total, character) => (total * 31 + character.charCodeAt(0)) % 9973,
+        17
+      );
+
+      return { plotNumber, score };
+    })
+    .sort((a, b) => a.score - b.score)
+    .slice(0, soldVisiblePlots);
+
+  return new Set(rankedPlots.map((item) => item.plotNumber));
+};
+
 const escapeHtml = (value = "") =>
   String(value)
     .replace(/&/g, "&amp;")
@@ -85,17 +109,108 @@ const setText = (selector, text) => {
   }
 };
 
+const isSafeGoogleMapUrl = (value = "") => {
+  try {
+    const url = new URL(String(value || "").trim());
+    return (
+      url.protocol === "https:" &&
+      ["www.google.com", "google.com", "maps.google.com", "www.google.nl", "maps.app.goo.gl"].includes(url.hostname)
+    );
+  } catch {
+    return false;
+  }
+};
+
+const getAutomaticMapUrl = (plot) => {
+  const query = [plot.title, plot.location, "The Gambia"].filter(Boolean).join(", ");
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
+};
+
+const getValidPolygonCoordinates = (coordinates = []) =>
+  (Array.isArray(coordinates) ? coordinates : [])
+    .map((point) => [Number(point?.[0]), Number(point?.[1])])
+    .filter(([lat, lng]) => Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180);
+
+const renderPolygonMap = (mapFrame, coordinates) => {
+  if (!window.L) {
+    mapFrame.innerHTML = `
+      <div>
+        <span>Boundary map unavailable</span>
+        <strong>The map library could not be loaded.</strong>
+      </div>
+    `;
+    return;
+  }
+
+  const mapId = `plot-boundary-map-${plot.id || "detail"}`;
+  mapFrame.innerHTML = `<div class="plot-boundary-map" id="${escapeHtml(mapId)}" aria-label="${escapeHtml(plot.title)} boundary map"></div>`;
+
+  const mapElement = document.getElementById(mapId);
+  if (!mapElement) {
+    return;
+  }
+
+  const map = window.L.map(mapElement, {
+    scrollWheelZoom: false,
+    tap: true,
+  });
+
+  map.attributionControl.setPrefix("");
+
+  window.L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+    maxZoom: 19,
+      attribution:
+        "Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    }
+  ).addTo(map);
+
+  const polygon = window.L.polygon(coordinates, {
+    color: "#ffffff",
+    fillColor: "#c9a14a",
+    fillOpacity: 0.32,
+    lineJoin: "round",
+    opacity: 1,
+    weight: 6,
+  })
+    .addTo(map)
+    .bindPopup(escapeHtml(plot.title));
+
+  window.L.polygon(coordinates, {
+    color: "#4b176d",
+    fill: false,
+    lineJoin: "round",
+    opacity: 1,
+    weight: 3,
+  }).addTo(map);
+
+  map.fitBounds(polygon.getBounds(), {
+    animate: false,
+    padding: [28, 28],
+  });
+
+  setTimeout(() => map.invalidateSize(), 50);
+};
+
 const renderPlotMiniMap = () => {
   const totalPlots = Number(plot.totalPlots) || 0;
   const soldPlotNumbers = parseSoldPlotNumbers(plot.soldPlotNumbers, totalPlots);
   const soldPlots = soldPlotNumbers.length || clampNumber(plot.soldPlots || 0, 0, totalPlots);
-  const soldSet = new Set(soldPlotNumbers);
   const visiblePlots = Math.min(totalPlots, 80);
+  const hasExactSoldNumbers = soldPlotNumbers.length > 0;
+  const soldSet = hasExactSoldNumbers
+    ? new Set(soldPlotNumbers)
+    : getIndicativeSoldSet(totalPlots, soldPlots, visiblePlots, plot.id || plot.title);
   const cells = [];
 
   for (let index = 1; index <= visiblePlots; index += 1) {
-    const isSold = soldSet.size ? soldSet.has(index) : index <= soldPlots;
-    cells.push(`<span class="${isSold ? "sold" : "available"}" title="Plot ${index}: ${isSold ? "Sold" : "Available"}">${index}</span>`);
+    const isSold = soldSet.has(index);
+    const label = hasExactSoldNumbers
+      ? `Plot ${index}: ${isSold ? "Sold" : "Available"}`
+      : `${isSold ? "Sold/reserved" : "Available"} indication`;
+    const cellText = hasExactSoldNumbers ? index : "";
+    cells.push(`<span class="${isSold ? "sold" : "available"}" title="${label}">${cellText}</span>`);
   }
 
   if (totalPlots > visiblePlots) {
@@ -105,14 +220,15 @@ const renderPlotMiniMap = () => {
   return `
     <div class="plot-availability-map detail-map" aria-label="${escapeHtml(plot.title)} plot availability">
       <div class="plot-map-head">
-        <span>Plot overview</span>
+        <span>${hasExactSoldNumbers ? "Plot overview" : "Availability indication"}</span>
         <strong>${formatPlotLabel(totalPlots - soldPlots)} available</strong>
       </div>
       <div class="plot-map-grid">${cells.join("")}</div>
       <div class="plot-map-legend">
         <span><i class="available"></i>Available</span>
-        <span><i class="sold"></i>Sold</span>
+        <span><i class="sold"></i>${hasExactSoldNumbers ? "Sold" : "Sold/reserved"}</span>
       </div>
+      ${hasExactSoldNumbers ? "" : '<p class="plot-map-note">Indicative mix only. Exact plot numbers are confirmed by the sales team.</p>'}
     </div>
   `;
 };
@@ -151,13 +267,23 @@ const renderPlot = () => {
     image.alt = plot.imageAlt || `${plot.title} advert`;
   }
 
+  const statusBadge = document.querySelector(".plot-hero-card .badge");
+  if (statusBadge) {
+    statusBadge.textContent = getStatusLabel(plot.status);
+    statusBadge.className = `badge ${plot.status || "available"}`;
+  }
+
   document.querySelectorAll("[data-whatsapp-link]").forEach((link) => {
-    link.href = `https://wa.me/2207735574?text=${encodeURIComponent(plot.whatsappText)}`;
+    link.href = "#lead";
+    link.dataset.leadAction = "whatsapp";
   });
 
   document.querySelectorAll("[data-buy-link]").forEach((link) => {
-    link.href = `https://wa.me/2207735574?text=${encodeURIComponent(`Hello Estate4Mission, I would like to buy or reserve a plot in ${plot.title}.`)}`;
+    link.href = "#lead";
+    link.dataset.leadAction = "buy";
   });
+
+  renderLocationMap();
 
   const detailList = document.querySelector("[data-plot-details]");
   if (detailList) {
@@ -195,6 +321,125 @@ const renderPlot = () => {
   updateAvailability();
 };
 
+const renderLocationMap = () => {
+  const mapFrame = document.querySelector("[data-plot-map-frame]");
+  const mapLink = document.querySelector("[data-plot-map-link]");
+  const mapNote = document.querySelector("[data-plot-map-note]");
+  const embedUrl = plot.mapEmbedUrl || getAutomaticMapUrl(plot);
+  const linkUrl = plot.mapLinkUrl || embedUrl.replace("&output=embed", "");
+  const polygonCoordinates = getValidPolygonCoordinates(plot.polygonCoordinates);
+
+  if (mapNote) {
+    mapNote.textContent =
+      plot.mapNote || "Map boundaries are indicative. Exact plot coordinates and title details are confirmed during due diligence.";
+  }
+
+  if (mapLink) {
+    if (isSafeGoogleMapUrl(linkUrl)) {
+      mapLink.href = linkUrl;
+      mapLink.hidden = false;
+    } else {
+      mapLink.hidden = true;
+    }
+  }
+
+  if (!mapFrame) {
+    return;
+  }
+
+  if (polygonCoordinates.length >= 3) {
+    renderPolygonMap(mapFrame, polygonCoordinates);
+    return;
+  }
+
+  if (!isSafeGoogleMapUrl(embedUrl)) {
+    mapFrame.innerHTML = `
+      <div>
+        <span>Map not added yet</span>
+        <strong>Add a Google Maps embed URL in Admin.</strong>
+      </div>
+    `;
+    return;
+  }
+
+  mapFrame.innerHTML = `
+    <iframe
+      src="${escapeHtml(embedUrl)}"
+      title="${escapeHtml(plot.title)} location map"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
+    ></iframe>
+  `;
+};
+
+const getStatusLabel = (status) => {
+  if (status === "reserved") {
+    return "Reserved";
+  }
+
+  if (status === "sold") {
+    return "Sold";
+  }
+
+  return "Available";
+};
+
+const closeLeadModal = () => {
+  leadModal?.classList.remove("open");
+  leadModal?.setAttribute("aria-hidden", "true");
+};
+
+const openLeadModal = (action) => {
+  if (!plot || !leadModal || !leadForm) return;
+  pendingLeadAction = action;
+  leadForm.reset();
+  leadForm.elements.action.value = action;
+  leadForm.elements.propertyId.value = plot.id;
+  leadSummary.textContent = `${plot.title} - ${action === "buy" ? "buy or reserve" : "request current availability"}`;
+  leadMessage.textContent = "";
+  leadModal.classList.add("open");
+  leadModal.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => leadForm.elements.name.focus(), 50);
+};
+
+document.querySelectorAll("[data-whatsapp-link], [data-buy-link]").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    openLeadModal(link.dataset.leadAction || (link.hasAttribute("data-buy-link") ? "buy" : "whatsapp"));
+  });
+});
+
+document.querySelectorAll("[data-lead-close]").forEach((element) => element.addEventListener("click", closeLeadModal));
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && leadModal?.classList.contains("open")) closeLeadModal();
+});
+
+const createWhatsAppUrl = (data) => {
+  const intent = pendingLeadAction === "buy" ? "buy or reserve a plot" : "request current availability";
+  const details = [
+    `Hello Estate4Mission, I would like to ${intent} in ${plot.title}.`,
+    `My name is ${data.name}.`,
+    data.phone ? `Phone: ${data.phone}.` : "",
+    data.email ? `Email: ${data.email}.` : "",
+    data.message ? `Message: ${data.message}` : "",
+  ].filter(Boolean).join(" ");
+  return `https://wa.me/2207735574?text=${encodeURIComponent(details)}`;
+};
+
+leadForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(leadForm).entries());
+  data.consent = leadForm.elements.consent.checked;
+  leadMessage.textContent = "Saving your request...";
+  try {
+    await requestJson("/api/leads", { method: "POST", body: JSON.stringify(data) });
+    window.location.href = createWhatsAppUrl(data);
+  } catch {
+    leadMessage.textContent = "Could not save your request. Please try again.";
+  }
+});
+
 const updateAvailability = () => {
   const soldPlotNumbers = parseSoldPlotNumbers(plot.soldPlotNumbers, plot.totalPlots);
   const soldPlots = soldPlotNumbers.length || clampNumber(plot.soldPlots || 0, 0, plot.totalPlots);
@@ -212,16 +457,20 @@ const updateAvailability = () => {
 };
 
 const loadPlot = async () => {
+  const fallbackPlots = getFallbackProperties();
+  const fallbackPlot = fallbackPlots.find((item) => item.id === plotId);
+
+  if (fallbackPlot) {
+    plot = fallbackPlot;
+    renderPlot();
+  }
+
   try {
     const payload = await requestJson(`/api/properties?id=${encodeURIComponent(plotId || "")}`);
     plot = payload.property;
     renderPlot();
   } catch {
-    const fallbackPlots = getFallbackProperties();
-    plot = fallbackPlots.find((item) => item.id === plotId);
-
-    if (plot) {
-      renderPlot();
+    if (fallbackPlot) {
       return;
     }
 

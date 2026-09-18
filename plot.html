@@ -14,7 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css?v=20260917-contact-v5" />
   </head>
   <body class="plot-detail-page">
     <div class="loader" aria-label="Loading Estate4Mission">
@@ -58,7 +59,7 @@
         </div>
 
         <div class="plot-hero-card reveal">
-          <img data-plot-image src="" alt="" />
+          <img data-plot-image src="" alt="" loading="eager" fetchpriority="high" />
           <span class="badge available">Available</span>
         </div>
       </section>
@@ -89,6 +90,25 @@
         </div>
       </section>
 
+      <section class="section plot-location-section">
+        <div class="plot-location-card reveal">
+          <div class="plot-location-copy">
+            <p class="eyebrow">Exact location</p>
+            <h2>Project boundary and local context.</h2>
+            <p data-plot-map-note>
+              Add a Google Maps or My Maps embed in Admin to show the plot boundary and surrounding landmarks here.
+            </p>
+            <a class="btn btn-primary btn-small" data-plot-map-link href="#" target="_blank" rel="noopener noreferrer" hidden>Open in Google Maps</a>
+          </div>
+          <div class="plot-location-map" data-plot-map-frame>
+            <div>
+              <span>Map not added yet</span>
+              <strong>Add a Google Maps embed URL in Admin.</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="section plot-body-section">
         <div class="plot-body-grid">
           <article class="plot-content-panel reveal">
@@ -104,16 +124,30 @@
             <p>
               For exact plot numbers, current reservation status and next steps, contact the Estate4Mission team directly.
             </p>
-            <div class="contact-details compact">
-              <a href="tel:+31642079697">Gerwin: +31 6 42079697</a>
-              <a href="tel:+2207735574">Sanna: +220 773 5574</a>
-              <a href="tel:+2207063800">Joop: +220 706 3800</a>
+            <div class="plot-contact-list" aria-label="Estate4Mission contact persons">
+              <a href="tel:+31642079697">
+                <span>Netherlands</span>
+                <strong>Gerwin</strong>
+                <small>+31 6 42079697</small>
+              </a>
+              <a href="tel:+2207735574">
+                <span>The Gambia</span>
+                <strong>Sanna</strong>
+                <small>+220 773 5574</small>
+              </a>
+              <a href="tel:+2207063800">
+                <span>The Gambia</span>
+                <strong>Joop</strong>
+                <small>+220 706 3800</small>
+              </a>
             </div>
-            <a class="btn btn-primary whatsapp-detail-button" data-whatsapp-link target="_blank" rel="noopener noreferrer">
-              <img src="images/whatsapp-logo.avif" alt="" />
-              WhatsApp
-            </a>
-            <a class="btn btn-gold whatsapp-detail-button" data-buy-link target="_blank" rel="noopener noreferrer">Buy It Now</a>
+            <div class="plot-contact-actions">
+              <a class="btn btn-primary whatsapp-detail-button" data-whatsapp-link target="_blank" rel="noopener noreferrer">
+                <img src="images/whatsapp-logo.avif" alt="" />
+                WhatsApp
+              </a>
+              <a class="btn btn-gold whatsapp-detail-button" data-buy-link target="_blank" rel="noopener noreferrer">Buy It Now</a>
+            </div>
           </aside>
         </div>
       </section>
@@ -131,9 +165,31 @@
         <a href="index.html#about">About</a>
         <a href="index.html#properties">Properties</a>
         <a href="index.html#contact">Contact</a>
+        <a href="index.html#admin">Admin</a>
       </div>
       <p class="copyright">&copy; <span id="year"></span> Estate4Mission Ltd. All rights reserved.</p>
     </footer>
+
+    <div class="lead-modal" data-lead-modal aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title">
+      <div class="lead-modal-backdrop" data-lead-close></div>
+      <div class="lead-modal-panel">
+        <button class="lead-modal-close" type="button" data-lead-close aria-label="Close contact form">Close</button>
+        <p class="eyebrow">Estate4Mission</p>
+        <h2 id="lead-modal-title">Request plot information</h2>
+        <p class="lead-modal-summary" data-lead-plot-summary></p>
+        <form class="lead-form" data-lead-form>
+          <input type="hidden" name="action" />
+          <input type="hidden" name="propertyId" />
+          <label>Name *<input name="name" required autocomplete="name" /></label>
+          <label>Phone<input name="phone" type="tel" autocomplete="tel" /></label>
+          <label>Email<input name="email" type="email" autocomplete="email" /></label>
+          <label>Message<textarea name="message" rows="3"></textarea></label>
+          <label class="lead-consent"><input type="checkbox" name="consent" required /> I agree that Estate4Mission may use these details to respond to this request.</label>
+          <button class="btn btn-primary" type="submit">Continue to WhatsApp</button>
+          <p class="lead-form-message" data-lead-message role="status"></p>
+        </form>
+      </div>
+    </div>
 
     <a class="whatsapp-float" href="https://wa.me/2207735574" target="_blank" rel="noopener noreferrer" aria-label="Contact Estate4Mission on WhatsApp">
       <img src="images/whatsapp-logo.avif" alt="" />
@@ -141,6 +197,7 @@
     <button class="scroll-top" type="button" aria-label="Scroll to top">Up</button>
 
     <script src="js/properties-data.js"></script>
-    <script src="js/plot.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/plot.js?v=20260917-leads-v1"></script>
   </body>
 </html>

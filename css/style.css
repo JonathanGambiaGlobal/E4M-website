@@ -167,6 +167,29 @@ select {
   width: 100%;
 }
 
+.nav-menu .nav-cta {
+  margin-left: 4px;
+  padding: 10px 16px;
+  border: 1px solid rgba(201, 161, 74, 0.58);
+  border-radius: 999px;
+  color: var(--purple-dark);
+  background: var(--gold);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+}
+
+.nav-menu .nav-cta::after {
+  display: none;
+}
+
+.site-header.scrolled .nav-menu .nav-cta {
+  color: var(--purple-dark);
+  box-shadow: 0 10px 22px rgba(201, 161, 74, 0.2);
+}
+
+.nav-menu .nav-cta:hover {
+  transform: translateY(-1px);
+}
+
 .nav-toggle {
   display: none;
   width: 44px;
@@ -402,6 +425,115 @@ h3 {
 .section {
   padding: 110px 34px;
   scroll-margin-top: 128px;
+}
+
+.plot-spotlight {
+  position: relative;
+  z-index: 4;
+  width: min(1180px, calc(100% - 68px));
+  margin: -42px auto 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.58fr);
+  gap: 30px;
+  align-items: stretch;
+  padding: 30px;
+  border: 1px solid rgba(201, 161, 74, 0.34);
+  border-radius: calc(var(--radius) + 4px);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(248, 245, 239, 0.92)),
+    var(--white);
+  box-shadow: 0 28px 90px rgba(31, 13, 43, 0.18);
+}
+
+.plot-spotlight-copy {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 10px 8px 6px;
+}
+
+.plot-spotlight-copy h2 {
+  max-width: 760px;
+  margin-bottom: 16px;
+  font-size: clamp(2rem, 3.8vw, 3.5rem);
+}
+
+.plot-spotlight-copy p:not(.eyebrow) {
+  max-width: 650px;
+  color: var(--muted);
+}
+
+.plot-spotlight-card {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(201, 161, 74, 0.26);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.plot-spotlight-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+}
+
+.plot-spotlight-image {
+  position: relative;
+  min-height: 240px;
+  padding: 10px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(201, 161, 74, 0.18), transparent 34%),
+    var(--sand);
+}
+
+.plot-spotlight-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  object-fit: contain;
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--white);
+}
+
+.plot-spotlight-image span {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--white);
+  background: #1f8f5b;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.plot-spotlight-image span.reserved {
+  background: #d58724;
+}
+
+.plot-spotlight-image span.sold {
+  background: #b33434;
+}
+
+.plot-spotlight-body {
+  padding: 22px;
+}
+
+.plot-spotlight-body h3 {
+  margin-bottom: 8px;
+}
+
+.plot-spotlight-body p:not(.listing-kicker) {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.plot-spotlight-body strong {
+  color: var(--purple);
+  font-size: 1rem;
 }
 
 .section-heading,
@@ -1259,6 +1391,13 @@ h3 {
   background: #b33434;
 }
 
+.plot-map-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
 .detail-map {
   margin-bottom: 18px;
 }
@@ -1330,8 +1469,114 @@ h3 {
 }
 
 .plot-details-section,
+.plot-location-section,
 .plot-body-section {
   padding-top: 34px;
+}
+
+.plot-location-card {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.45fr) minmax(0, 0.55fr);
+  gap: 26px;
+  align-items: stretch;
+  padding: 28px;
+  border: 1px solid rgba(201, 161, 74, 0.28);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--soft-shadow);
+}
+
+.plot-location-copy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+.plot-location-copy h2 {
+  margin-bottom: 16px;
+  font-size: clamp(1.7rem, 3vw, 2.8rem);
+}
+
+.plot-location-copy p {
+  color: var(--muted);
+}
+
+.plot-location-map {
+  min-height: 360px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(67, 18, 107, 0.9), rgba(38, 9, 63, 0.82)),
+    var(--purple);
+}
+
+.plot-location-map iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  border: 0;
+}
+
+.plot-location-map .plot-boundary-map {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  z-index: 1;
+}
+
+.plot-location-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  font-family: var(--font);
+}
+
+.plot-location-map .leaflet-control-attribution {
+  margin: 0 6px 6px 0;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.58);
+  color: rgba(38, 9, 63, 0.62);
+  font-size: 0.55rem;
+  line-height: 1.2;
+  opacity: 0.75;
+  transform: scale(0.88);
+  transform-origin: bottom right;
+  transition: opacity 0.18s ease, background 0.18s ease;
+}
+
+.plot-location-map .leaflet-control-attribution:hover {
+  background: rgba(255, 255, 255, 0.86);
+  opacity: 1;
+}
+
+.plot-location-map .leaflet-control-attribution a {
+  color: inherit;
+}
+
+.plot-location-map > div:not(.plot-boundary-map) {
+  max-width: 420px;
+  padding: 28px;
+  text-align: center;
+  color: var(--white);
+}
+
+.plot-location-map span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--gold);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.plot-location-map strong {
+  font-size: 1.2rem;
 }
 
 .plot-details-grid,
@@ -1352,6 +1597,11 @@ h3 {
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--soft-shadow);
+}
+
+.plot-contact-panel {
+  display: flex;
+  flex-direction: column;
 }
 
 .plot-summary-card h2,
@@ -1399,8 +1649,13 @@ h3 {
 }
 
 .plot-body-grid {
-  grid-template-columns: 1.12fr 0.88fr;
-  align-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.plot-body-grid .plot-content-panel,
+.plot-body-grid .plot-contact-panel {
+  height: 100%;
 }
 
 .plot-content-panel p {
@@ -1431,8 +1686,62 @@ h3 {
   margin: 24px 0;
 }
 
+.plot-contact-list {
+  display: grid;
+  gap: 9px;
+  margin: auto 0 18px;
+  padding-top: 32px;
+}
+
+.plot-contact-list a {
+  display: grid;
+  grid-template-columns: 112px 86px minmax(136px, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 54px;
+  padding: 11px 16px;
+  border: 1px solid rgba(67, 18, 107, 0.1);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  color: var(--purple-dark);
+  background: var(--sand);
+  text-decoration: none;
+}
+
+.plot-contact-list span {
+  color: var(--gold);
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+
+.plot-contact-list strong {
+  color: var(--purple-dark);
+  font-size: 0.96rem;
+  line-height: 1.1;
+}
+
+.plot-contact-list small {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: right;
+}
+
+.plot-contact-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: 10px;
+}
+
 .whatsapp-detail-button {
-  width: fit-content;
+  width: 100%;
+  min-height: 52px;
+  justify-content: center;
+  padding-inline: 18px;
 }
 
 .whatsapp-detail-button img {
@@ -1624,7 +1933,8 @@ h3 {
 }
 
 .advert-modal,
-.admin-modal {
+.admin-modal,
+.lead-modal {
   position: fixed;
   inset: 0;
   z-index: 300;
@@ -1637,13 +1947,15 @@ h3 {
 }
 
 .advert-modal.open,
-.admin-modal.open {
+.admin-modal.open,
+.lead-modal.open {
   opacity: 1;
   visibility: visible;
 }
 
 .advert-modal-backdrop,
-.admin-modal-backdrop {
+.admin-modal-backdrop,
+.lead-modal-backdrop {
   position: absolute;
   inset: 0;
   background: rgba(27, 27, 27, 0.72);
@@ -1661,6 +1973,119 @@ h3 {
   border-radius: var(--radius);
   background: var(--white);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.32);
+}
+
+.lead-modal-panel {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: min(88vh, 760px);
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid rgba(67, 18, 107, 0.12);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.32);
+}
+
+.lead-modal-close {
+  float: right;
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 14px;
+  color: var(--white);
+  background: var(--purple);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.lead-form {
+  display: grid;
+  gap: 14px;
+  clear: both;
+}
+
+.lead-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--purple-dark);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.lead-form input:not([type="checkbox"]),
+.lead-form textarea {
+  width: 100%;
+  border: 1px solid rgba(67, 18, 107, 0.14);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--ink);
+  background: var(--sand);
+  font: inherit;
+}
+
+.lead-consent {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 10px !important;
+  font-size: 0.78rem !important;
+}
+
+.lead-form-message {
+  min-height: 1.2em;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.admin-leads {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(67, 18, 107, 0.12);
+}
+
+.admin-leads-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+}
+
+.admin-leads-head h4 {
+  margin: 0;
+}
+
+.admin-leads-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-lead-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 16px;
+  padding: 14px;
+  border: 1px solid rgba(67, 18, 107, 0.1);
+  border-radius: var(--radius);
+  background: var(--sand);
+}
+
+.admin-lead-card strong,
+.admin-lead-card span {
+  display: block;
+}
+
+.admin-lead-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.admin-lead-card select {
+  align-self: start;
+  border: 1px solid rgba(67, 18, 107, 0.15);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--white);
 }
 
 .admin-panel {
@@ -1758,6 +2183,28 @@ h3 {
   align-items: start;
 }
 
+.admin-map-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(74, 24, 117, 0.16);
+  background: #f7f3ed;
+  color: #4a1875;
+}
+
+.admin-map-summary span {
+  color: #716b68;
+}
+
+.admin-map-summary a {
+  color: #4a1875;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 .admin-remove {
   border: 1px solid rgba(179, 52, 52, 0.28);
   border-radius: 999px;
@@ -1798,6 +2245,179 @@ h3 {
 
 .admin-property-row textarea {
   resize: vertical;
+}
+
+.admin-plot-selector {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(201, 161, 74, 0.28);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.admin-plot-selector-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--purple-dark);
+  font-size: 0.86rem;
+}
+
+.admin-plot-selector-head span {
+  color: var(--gold);
+  font-weight: 800;
+}
+
+.admin-plot-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.admin-plot-toggle {
+  cursor: pointer;
+}
+
+.admin-plot-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-plot-toggle span {
+  display: grid;
+  place-items: center;
+  min-height: 34px;
+  border: 1px solid rgba(31, 143, 91, 0.22);
+  border-radius: 6px;
+  color: #0d6b42;
+  background: rgba(31, 143, 91, 0.1);
+  font-size: 0.78rem;
+  font-weight: 800;
+  transition: 0.18s ease;
+}
+
+.admin-plot-toggle.checked span {
+  border-color: rgba(179, 52, 52, 0.3);
+  color: #7d2525;
+  background: rgba(179, 52, 52, 0.16);
+}
+
+.admin-plot-toggle input:focus-visible + span {
+  outline: 3px solid rgba(201, 161, 74, 0.44);
+  outline-offset: 2px;
+}
+
+.admin-plot-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.admin-coordinate-editor {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(201, 161, 74, 0.3);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.admin-coordinate-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+  color: var(--purple-dark);
+}
+
+.admin-coordinate-head strong,
+.admin-coordinate-head span {
+  display: block;
+}
+
+.admin-coordinate-head span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-coordinate-add,
+.admin-coordinate-convert,
+.admin-coordinate-remove {
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 12px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-coordinate-add,
+.admin-coordinate-convert {
+  color: var(--white);
+  background: var(--purple);
+}
+
+.admin-coordinate-remove {
+  color: #b33434;
+  background: rgba(179, 52, 52, 0.08);
+}
+
+.admin-coordinate-rows {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-coordinate-row {
+  display: grid;
+  grid-template-columns: 34px repeat(6, minmax(92px, 1fr)) auto auto;
+  gap: 8px;
+  align-items: end;
+  padding: 10px;
+  border: 1px solid rgba(67, 18, 107, 0.1);
+  border-radius: 10px;
+  background: var(--white);
+}
+
+.admin-coordinate-row.invalid {
+  border-color: rgba(179, 52, 52, 0.45);
+  box-shadow: 0 0 0 3px rgba(179, 52, 52, 0.08);
+}
+
+.admin-coordinate-row label {
+  gap: 5px;
+  font-size: 0.72rem;
+}
+
+.admin-coordinate-row input,
+.admin-coordinate-row select {
+  padding: 9px 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+
+.admin-coordinate-number {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: var(--purple);
+  background: rgba(201, 161, 74, 0.16);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.admin-field-help {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .admin-image-tools {
@@ -1919,6 +2539,10 @@ h3 {
     padding-right: 0;
   }
 
+  .plot-spotlight {
+    grid-template-columns: 1fr;
+  }
+
   .hero-panel {
     position: relative;
     right: auto;
@@ -1935,6 +2559,7 @@ h3 {
   }
 
   .plot-hero,
+  .plot-location-card,
   .plot-details-grid,
   .plot-body-grid {
     grid-template-columns: 1fr;
@@ -1990,6 +2615,12 @@ h3 {
     padding: 12px 10px;
   }
 
+  .nav-menu .nav-cta {
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+
   .nav-toggle.active span:nth-child(1) {
     transform: translateY(7px) rotate(45deg);
   }
@@ -2010,6 +2641,24 @@ h3 {
 
   .hero {
     padding-top: 132px;
+  }
+
+  .plot-spotlight {
+    width: calc(100% - 40px);
+    margin-top: -28px;
+    padding: 20px;
+  }
+
+  .plot-spotlight-copy {
+    padding: 0;
+  }
+
+  .plot-spotlight-image {
+    min-height: 210px;
+  }
+
+  .plot-spotlight-image img {
+    min-height: 190px;
   }
 
   .split-heading,
@@ -2178,12 +2827,14 @@ h3 {
   }
 
   .plot-details-section,
+  .plot-location-section,
   .plot-body-section {
     padding-top: 24px;
   }
 
   .plot-summary-card,
   .plot-info-card,
+  .plot-location-card,
   .plot-content-panel,
   .plot-contact-panel {
     padding: 24px;
@@ -2194,14 +2845,39 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .plot-contact-list a {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .plot-contact-actions,
+  .plot-contact-actions .btn {
+    width: 100%;
+  }
+
   .impact-story,
   .admin-panel {
     padding: 26px;
   }
 
   .admin-field-grid,
-  .admin-image-tools {
+  .admin-image-tools,
+  .admin-plot-toggle-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admin-coordinate-head,
+  .admin-coordinate-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-coordinate-head {
+    display: grid;
+  }
+
+  .admin-coordinate-number {
+    width: 100%;
+    border-radius: 8px;
   }
 
   .admin-property-head {
